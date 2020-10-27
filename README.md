@@ -1,1 +1,1 @@
-# edgex-geneva-on-rpi4
+# edgex-on-raspberry-pi
