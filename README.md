@@ -29,8 +29,8 @@ EdgeX:
 
 ## Prerequisites
 
-- An Ubuntu installed PC
-- A Raspberry Pi 4 (4GB or 8GB RAM version is recommended)
+- An Ubuntu installed PC (will be called **the host** in this series)
+- A Raspberry Pi 4B (4GB or 8GB RAM version is recommended)
 - A USB-C power adapter
 - A micro SD card and reader
 - An ethernet cable
