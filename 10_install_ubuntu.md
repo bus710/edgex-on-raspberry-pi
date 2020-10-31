@@ -5,7 +5,7 @@
 
 # 1. How to install Ubuntu on RPI
 
-RPI uses micro SD card as its main disk storage. Ubuntu 20.10 server image file can be downloaded from Canonical and the file can be flashed to a micro SD card by using different ways.
+RPI uses micro SD card as its main disk storage. Ubuntu server 20.10 image file can be downloaded from Canonical and the file can be flashed to a micro SD card by using different ways.
 
 <br/>
 
@@ -17,7 +17,7 @@ The OS image file can be found from [https://ubuntu.com/download/raspberry-pi](h
 
 <br/>
 
-As previously said the 64 bit version of Ubuntu 20.10 server will be used so that click the button on the web page or run below command:
+As previously said the 64 bit version of Ubuntu server 20.10 will be used so that click the button on the web page or run below command:
 ```sh
 $ cd ~/Downlaods
 $ wget https://ubuntu.com/download/raspberry-pi/thank-you?version=20.10&architecture=server-arm64+raspi
