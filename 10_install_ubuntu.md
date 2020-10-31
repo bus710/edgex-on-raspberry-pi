@@ -65,7 +65,7 @@ The micro SD card is ready but some files need to be edited for network configur
 
 RPI 4B has 2 network interfaces - ethernet and WiFi. The official Ubuntu guide for RPI recommends editing a file in the boot partition before the first boot. 
 
-The file is **/media/$USER/system-boot/network-config** and the contents are:
+The file is **/media/$USER/system-boot/network-config** and the content is:
 ```yml
 version: 2
 ethernets:
@@ -94,9 +94,9 @@ ethernets:
 #          ca-certificate: /etc/my_ca.pem
 ```
 
-This updated configuration has some assumptions:
-1. There is a WiFi router and it has access point with SSID "office-1a" and password "1a-office" for example
-2. The ethernet of RPI will have a static IP 192.168.0.2 so that we can have an 1:1 ethernet connection even if there is no router available (If the host's ethernet is being used, just keep the ethernet sections as the original).
+The configuration updated as below has some assumptions:
+1. There is a WiFi router and it has access point with SSID "office-1a" and password "1a-office" for example.
+2. The ethernet of RPI will have a static IP 192.168.0.2 so that we can have an 1:1 ethernet connection even if there is no router available (If the host's ethernet is being used, just keep the ethernets section as the original).
 ```yml
 version: 2
 ethernets:
@@ -126,7 +126,7 @@ $ sudo bash -c \
     "sed -i '/PasswordAuthentication/c\PasswordAuthentication yes' /media/$USER/writable/etc/ssh/sshd_config"
 ```
 
-All the pre-config is done. Please eject the micro SD card from the host system.
+All the network configuration is done. Please eject the micro SD card from the host system.
 
 <br/>
 
