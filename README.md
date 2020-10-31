@@ -29,8 +29,8 @@ EdgeX:
 
 ## Prerequisites
 
-- A Ubuntu installed PC
-- A Raspberry Pi 4 (4G RAM version is recommended)
+- An Ubuntu installed PC
+- A Raspberry Pi 4 (4GB or 8GB RAM version is recommended)
 - A USB-C power adapter
 - A micro SD card and reader
 - An ethernet cable
@@ -39,8 +39,8 @@ EdgeX:
 
 ## Index
 
-- [How to install Ubuntu on RPI](01_install_ubuntu.md)
-- How to install packages required for EdgeX development
-- How to launch and test EdgeX with a virtual device service
-- How to develop custom device and app services for a real hardware
+- [How to install Ubuntu on RPI](10_install_ubuntu.md)
+- [How to install packages required for EdgeX development](20_install_packages.md)
+- [How to install EdgeX with a virtual device service](30_install_edgex.md)
+- [How to develop custom device and app services for a real hardware](40_custom_device_service.md)
 
