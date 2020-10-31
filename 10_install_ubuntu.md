@@ -134,7 +134,7 @@ All the network configuration is done. Please eject the micro SD card from the h
 
 Now the micro SD card just flashed should be inserted to the RPI as well as the USB-C power adapter. First boot takes some time because it does some work behind of the scene include re-partitioning.
 
-We should change the host machine's ethernet configuration while the RPI is booting itself:
+We should change the host machine's ethernet configuration while the RPI's first boot:
 ```sh
 # In the host's terminal
 $ nm-connection-editor
@@ -183,11 +183,14 @@ $ ssh ubuntu@192.168.0.2 \
     -p 2222 \
     -o PreferredAuthentications=password \
     -o PubkeyAuthentication=no
+
+# The shell prompt will be changed to
+ubuntu@ubuntu:~$
 ```
 
 <br/>
 
-So, now the RPI is SSH accessable and ready to be used!
+So, now the RPI is accessable via SSH and ready to be used!
 
 <br/>
 
