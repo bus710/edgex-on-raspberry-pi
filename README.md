@@ -6,11 +6,11 @@ Although there are various IoT frameworks, EdgeX framework can be considered as 
 
 Recently, EdgeX foundation released a new version called Geneva (each version has a name of cities). Also Canonnical announced a new Ubuntu release 20.10 Groovy Gorilla and they embrace RPI as one of the major IoT target hardwares. These news made me to think about the combination of RPI, Ubuntu, and EdgeX. Running EdgeX on RPI is not something new because Golang and Docker are the cross platform tools used for EdgeX code base but this time the OS can be Ubuntu.
 
-This short tutorial requires some familiarity with the technologies but written in progressive steps so that it is easy to follow.
+This short tutorial requires some familiarity with the technologies but written in progressive chapters so that it is easy to follow.
 
 <br/>
 
-## Reference
+## References
 
 Raspberry Pi:
 - https://www.raspberrypi.org/
@@ -27,9 +27,19 @@ EdgeX:
 
 <br/>
 
+## Prerequisites
+
+- A Ubuntu installed PC
+- A Raspberry Pi 4 (4G RAM version is recommended)
+- A USB-C power adapter
+- A micro SD card and reader
+- An ethernet cable
+
+<br/>
+
 ## Index
 
-- How to install Ubuntu on RPI
+- [How to install Ubuntu on RPI](01_install_ubuntu.md)
 - How to install packages required for EdgeX development
 - How to launch and test EdgeX with a virtual device service
 - How to develop custom device and app services for a real hardware
