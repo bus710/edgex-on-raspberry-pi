@@ -174,7 +174,7 @@ Current password: ubuntu
 New password: $NEW_PASSWORD
 Retype new password: $NEW_PASSWORD
 
-# If the new password if decent, RPI will drop the access
+# If the new password if decent, RPI will drop the access with messages below
 passwd: password updated successfully
 Connection to 192.168.0.2 closed.
 
