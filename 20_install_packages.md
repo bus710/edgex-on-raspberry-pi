@@ -89,10 +89,39 @@ $ go version
 go version go1.15.3 linux/arm64
 ```
 
+<br/>
+
+## 2.6 Install Docker and Docker-compose
+
+Docker is a containerization platform/tool. EdgeX' core services are conveniently packaged as docker containers so that we can leverage Docker to run EdgeX. To install Docker and Docker-compose:
 ```sh
-sudo apt install -y \
+# Install the packages required first
+$ sudo apt install -y \
     gnupg-agent \
     apt-transport-https \
     ca-certificates \
     software-properties-common
+
+# Install Docker
+$ sudo apt install -y docker.io docker-compose
+
+# Enable and start Docker daemon
+$ sudo systemctl enable docker
+$ sudo systemctl start docker
+
+# Allow the current user to use Docker
+$ sudo usermod -aG docker ${LOGNAME}
+
+# Reboot to take effect
+$ sudo reboot
 ```
+
+<br/>
+
+So, now the required packages for EdgeX development are ready!
+
+<br/>
+
+---
+
+Next: [How to install EdgeX with a virtual device service](30_install_edgex.md)
