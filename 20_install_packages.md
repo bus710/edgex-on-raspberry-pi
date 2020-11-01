@@ -10,8 +10,11 @@ The Ubuntu server 20.10 is running on the RPI and we can access via SSH. This ch
 
 The RPI has its hostname as "ubuntu", which is fine as long as there are only one machine has the name. However, as a developer runs more RPIs, there are more chances to make mistakes if all the RPIs have same name. To change the name (but pick a editor you like):
 ```sh
+# Login to the RPI via ssh
 $ sudo vi /etc/hostname
-$ sudo reboot # to take effect of the new name
+
+# To take effect of the new name
+$ sudo reboot # Then, login again after 1~2 minutes
 ```
 
 Also, the RPI has its timezone as UTC so that scheduled tasks based on local time will not work as expected. To change the timezone:
@@ -37,5 +40,59 @@ $ sudo apt upgrade
 
 <br/>
 
+## 2.4 Install basic packages
 
+Before EdgeX installation, we need to install some basic packages in advance. However, these packages are very general requirements for any kind of development as well. To install the packages:
+```sh
+sudo apt install -y \
+    jq \
+    fzf \
+    vim \
+    git \
+    tmux \
+    curl \
+    tree \
+    make \
+    ranger \
+    ripgrep \
+    build-essential
+```
 
+<br/>
+
+## 2.5 Install Go SDK and Delve
+
+Go is a programming language used for EdgeX development and Delve is a debugger for Go development. Both will be used to build and develop EdgeX services later in this tutorial. To install Go SDK and Delve:
+```sh
+# Go v1.15.3 is being installed here because it is the latest stable version as of today but please check it from https://golang.org/dl/
+
+$ cd ~
+$ mkdir /usr/local/bin
+
+# Download the SDK
+$ wget https://dl.google.com/go/go1.15.3.linux-arm64.tar.gz
+
+# Extract and place the SDK under /usr/local/go
+$ sudo bash -c "tar -xf go1.15.3.linux-arm64.tar.gz --strip-components=1 -C /usr/local/go"
+
+# Go needs a directory for its libraries
+$ mkdir ~/go
+
+# Config the bashrc for the Go SDK and libraries' path
+$ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> ~/.bashrc
+$ echo "export GOROOT=/usr/local/go" >> ~/.bashrc
+$ echo "export GOPATH=$HOME/go" >> ~/.bashrc
+$ souce ~/.bashrc
+
+# To confirm the configurations
+$ go version
+go version go1.15.3 linux/arm64
+```
+
+```sh
+sudo apt install -y \
+    gnupg-agent \
+    apt-transport-https \
+    ca-certificates \
+    software-properties-common
+```
