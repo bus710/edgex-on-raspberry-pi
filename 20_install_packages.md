@@ -55,7 +55,11 @@ sudo apt install -y \
     make \
     ranger \
     ripgrep \
+    gnupg-agent \
     build-essential
+    ca-certificates \
+    apt-transport-https \
+    software-properties-common
 ```
 
 <br/>
@@ -95,21 +99,20 @@ go version go1.15.3 linux/arm64
 
 Docker is a containerization platform/tool. EdgeX' core services are conveniently packaged as docker containers so that we can leverage Docker to run EdgeX. To install Docker and Docker-compose:
 ```sh
-# Install the packages required first
-$ sudo apt install -y \
-    gnupg-agent \
-    apt-transport-https \
-    ca-certificates \
-    software-properties-common
-
 # Install Docker
 $ sudo apt install -y docker.io docker-compose
+
+# To confirm the installed version
+$ docker -v
+Docker version 19.03.8, build afacb8b7f0
+$ docker-compose -v
+docker-compose version 1.25.0, build unknown
 
 # Enable and start Docker daemon
 $ sudo systemctl enable docker
 $ sudo systemctl start docker
 
-# Allow the current user to use Docker
+# Add the current user to the Docker group
 $ sudo usermod -aG docker ${LOGNAME}
 
 # Reboot to take effect
