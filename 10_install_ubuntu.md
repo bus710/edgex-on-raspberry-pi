@@ -172,9 +172,11 @@ Current password: ubuntu
 
 # The new password should be longer than 8 characters and 1 numeric character should be included
 New password: $NEW_PASSWORD
+
+# Same password again
 Retype new password: $NEW_PASSWORD
 
-# If the new password if decent, RPI will drop the access with messages below
+# If the new password is decent, RPI will drop the access with messages below
 passwd: password updated successfully
 Connection to 192.168.0.2 closed.
 
