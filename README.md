@@ -42,5 +42,5 @@ EdgeX:
 - [How to install Ubuntu on RPI](10_install_ubuntu.md)
 - [How to install packages required for EdgeX development](20_install_packages.md)
 - [How to install EdgeX with a virtual device service](30_install_edgex.md)
-- [How to develop custom device and app services for a real hardware](40_custom_device_service.md)
+- [How to develop custom device and app services](40_custom_services.md)
 
