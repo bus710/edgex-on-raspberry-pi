@@ -108,7 +108,9 @@ $ vi docker-compose-portainer.yml
 $ docker-compose -f docker-compose-portainer.yml up -d
 ```
 
-Now we can access the portainer web service with RPI's address and port number 9000 in the host's browser. For the first time access, we need to set a new password. With the Portainer UI, we can monitor the log and interact with each service. 
+<br/>
+
+Now we can access to the portainer web service with RPI's IP address and port number 9000 from the host's browser. For the first time access, a new password needs to be set. With the Portainer UI, we can monitor the log and interact with each service. 
 
 ![Portainer](./assets/portainer.png)
 
