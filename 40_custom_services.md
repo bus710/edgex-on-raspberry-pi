@@ -570,7 +570,7 @@ $ curl http://localhost:48082/api/v1/device/$DEVICE_ID/command/$COMMAND_ID \
 
 ## Conclusion
 
-So far we prepared Ubuntu server 20.10 on RPI, launched EdgeX services, and created the device and app services. Although there are many unwritten details to keep it simple, now we know about the flow of EdgeX service development - where the important files are and how to build/test. As we could see, running EdgeX on RPI is not difficult at all. Everything is ready there for our exciting IoT projects!
+So far we prepared Ubuntu server 20.10 on RPI, launched EdgeX services, and created the device and app services. Although there are many unwritten details to keep it simple, now we know about the flow of EdgeX service development - where the important files are and how to build/test. To me, the benefit of using EdgeX is that all the queries get stored without concern of DB management and that is a huge plus if we deploy tons of edge devices everywhere. As we could see, running EdgeX on RPI is not difficult at all. Everything is ready there for us and our exciting IoT projects!
 
 <br/>
 
