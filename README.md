@@ -6,7 +6,7 @@ Although there are various IoT frameworks, EdgeX framework can be considered as 
 
 Recently, EdgeX foundation released a new version called Geneva (each version has a name from cities). Also Canonnical announced a new Ubuntu release 20.10 Groovy Gorilla and the OS embraces RPI as one of the major IoT target hardwares. These news made me to think about the combination of RPI, Ubuntu, and EdgeX. Running EdgeX on RPI is not something new because Golang and Docker are the cross platform tools used for EdgeX code base but this time the OS can be Ubuntu.
 
-This short tutorial requires some familiarity with the technologies but it is written in progressive manner so that it is easy to follow.
+This short tutorial requires some familiarity with the technologies and tools (vi, curl, sed, and jq) but it is progressivly written and easy to follow.
 
 <br/>
 
