@@ -2,11 +2,11 @@
 
 Raspberry Pi (RPI) is a series of well-known single board computers (SBC). The credit card sized computer can run Linux as its operating system so that it can be a useful platform for Internet of Things (IoT) projects. 
 
-Although there are various IoT frameworks, EdgeX framework can be considered as a solid candidate because of its architecture, workflow, and productivity. EdgeX is designed as microservices architecture and thus new features can be easily adapted. The framework is developed with modern web technologies from the beginning so that developers can leverage their knowledge for smooth workflow and maximum productivity.
+Although there are various IoT frameworks, EdgeX framework can be considered as a solid candidate because of its architecture, workflow, and productivity. Its microservices architecture is very flexible and thus new features can be easily adapted. The framework is developed with modern web technologies from the beginning so that developers can leverage their knowledge 
 
-Recently, EdgeX foundation released a new version called Geneva (each version has a name from cities). Also Canonnical announced a new Ubuntu release 20.10 Groovy Gorilla and they embrace RPI as one of the major IoT target hardwares. These news made me to think about the combination of RPI, Ubuntu, and EdgeX. Running EdgeX on RPI is not something new because Golang and Docker are the cross platform tools used for EdgeX code base but this time the OS can be Ubuntu.
+Recently, EdgeX foundation released a new version called Geneva (each version has a name from cities). Also Canonnical announced a new Ubuntu release 20.10 Groovy Gorilla and the OS embraces RPI as one of the major IoT target hardwares. These news made me to think about the combination of RPI, Ubuntu, and EdgeX. Running EdgeX on RPI is not something new because Golang and Docker are the cross platform tools used for EdgeX code base but this time the OS can be Ubuntu.
 
-This short tutorial requires some familiarity with the technologies but it is written in progressive chapters so that it is easy to follow.
+This short tutorial requires some familiarity with the technologies but it is written in progressive manner so that it is easy to follow.
 
 <br/>
 

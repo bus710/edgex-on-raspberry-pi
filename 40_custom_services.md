@@ -2,7 +2,7 @@
 
 # 4. How to develop custom device and app services 
 
-Launching the core services is the first step for EdgeX based development. However, how can we connect our own device and app services to the core services? How can our services communicate with the core services? What would be the benefit of using EdgeX versus our own stand alone service? To find out the answers, let's create custom services. 
+Launching the core services is the first step of EdgeX based development. However, how can we connect our own device and app services to the core services? How can our services communicate with the core services? EdgeX team offers SDKs for custom device and app services so that we can start from the SDKs.
 
 <br/>
 
@@ -25,7 +25,7 @@ To make our own device service, readers should:
 
 ### 4.1.1 Clone and config SDK
 
-The device service SDK can be cloned and configured so that we can run test build as following:
+The device service SDK can be cloned and configured so that we can build/test the service as follow:
 ```sh
 # Clone SDK
 $ mkdir ~/go/src/github.com/edgexfoundry -p
@@ -165,7 +165,7 @@ func (s *SimpleDriver) HandleReadCommands(
 
         s.lc.Debug(fmt.Sprintf("SimpleDriver.HandleReadCommands: protocols: %v resource: %v attributes: %v", protocols, reqs[0].DeviceResourceName, reqs[0].Attributes))
 
-        // Replaced the contents of this block
+        // Replaced the contents of this if block
         if len(reqs) == 1 {
                 res = make([]*dsModels.CommandValue, 1)
                 now := time.Now().UnixNano()
@@ -186,7 +186,7 @@ func (s *SimpleDriver) HandleWriteCommands(
 
         var err error
 
-        // Replaced the contents of this block
+        // Replaced the contents of this for block
         for i, r := range reqs {
                 s.lc.Info(fmt.Sprintf("SimpleDriver.HandleWriteCommands: protocols: %v, resource: %v, parameters: %v", protocols, reqs[i].DeviceResourceName, params[i]))
 
@@ -226,7 +226,7 @@ LogLevel = 'INFO'
 BootTimeout = 30000
 CheckInterval = '10s'
 ClientMonitor = 15000
-Host = '172.17.0.1'
+Host = '172.17.0.1' # If the core services run as Docker containers
 Port = 49980 # Don't use a port being used!
 Protocol = 'http'
 StartupMsg = 'device simple started'
@@ -287,10 +287,10 @@ File = ''
       Address = 'simple01'
       Port = '300'
 
-# Auto events are removed for this tutorial
+# Auto events are removed for the purpose of this tutorial
 ```
 
-For Simple-Driver.yaml:
+For Simple-Driver.yaml (be careful about the indentation!):
 ```yaml
 name: "Simple-Device"
 manufacturer: "HP Corp."
@@ -356,7 +356,7 @@ level=INFO ts=2020-09-15T10:48:51.814815574Z app=device-simple source=service.go
 ...
 ```
 
-Please open a new terminal and curl can be used to check the state of the device service:
+Please open a new terminal and use **curl** to check the state of the device service:
 ```sh
 # Basic info of the device service.
 $ curl http://localhost:48081/api/v1/addressable -X GET -s | jq '.[] | {name,address,port}'
@@ -429,7 +429,7 @@ More APIs can be found from:
 
 ## 4.2 How to use EdgeX app functions SDK
 
-The EdgeX stack works great and our own custom device service, too. Now, it is the time to create an app service, which gets messages from the device service via the core data.
+Our first custom device service works good with the EdgeX services. Now, it is the time to create our own custom app service, which gets messages from the device service via the core data.
 
 To make our own app service, readers should:
 - Clone EdgeX app functions SDK
@@ -450,7 +450,7 @@ EdgeX foundry offers plenty of documents as well:
 
 Now, we can clone and build one of the app functions SDK examples:
 ```sh
-# Originally, the app functions SDK requires the libzmq library and sometimes we need to build it from the source code. However, Ubuntu server 20.10 comes with the libzmq3-dev package and it is already installed.
+# Originally, the app functions SDK requires the libzmq library and sometimes we need to build it from the source code if we use OS doesn't deliver the library package out of the box. However, Ubuntu server 20.10 comes with the libzmq3-dev package and it is already installed in the previous chapter.
 
 $ cd ~/repo
 $ git clone https://github.com/edgexfoundry/edgex-examples
@@ -489,16 +489,16 @@ CGO_ENABLED=1 GO111MODULE=on go build -o app-service
 
 ### 4.2.2 Edit the configuration file
 
-The app functions SDK offers handlers and filters for the message stream of EdgeX. Examples of app functions SDK show various use cases but we can start from the simplest one. In the previous step, the example is already compiled but we need to take a look into the main.go and res/configuration.toml files.
+The app functions SDK offers handlers and filters for the message stream of EdgeX core data service. Examples of app functions SDK show various use cases but we can start from the simplest one. In the previous step, the example is already compiled but we need to take a look into the main.go and res/configuration.toml files.
 
-The **res/configuration.toml** is the configuration file for this app function. Target message source can be specified as long as other settings. The sub section **ApplicationSettings** should have device name as target message source. Since our device service has the name as "Simple-Device02" in its configuration.toml, we need to write the same name for DeviceNames as below.
+The **res/configuration.toml** is the configuration file for this app function. Target message source can be specified as long as other settings. The sub section **ApplicationSettings** should have device names as target message sources. Since our device service has the name as **Simple-Device02** in its configuration.toml, we need to write the same name for DeviceNames as below.
 
 ```toml
 [ApplicationSettings]
 DeviceNames = "Simple-Device02"
 ```
 
-The **main.go** is the place where the actual handlers and filters can be written. The structure and flow are straightforward. In the main function, it initializes the app SDK with a secret key. Then it reads the configuration.toml file and DeviceNames variable. Pipeline is configured with chained functions for message handling and filtering. The printXMLToConsole function is specified at the end of the chain so that we can write some code there to use the data filtered in the pipeline so that the incoming messages get passed to other go routines as we normally use Go. 
+The **main.go** is the place where the actual handlers and filters can be written. The structure and flow are straightforward. In the main function, it initializes the app SDK with a secret key. Then it reads the configuration.toml file and DeviceNames variable. Pipeline is configured with chained functions for message handling and filtering. The printXMLToConsole function is specified at the end of the chained functions so that we can write some code there to use the data filtered from the pipeline so that the incoming messages can be passed to other go routines as we normally write Go code. 
 
 ```go
 func main() {
@@ -522,7 +522,7 @@ func main() {
 
         // 3) This is our pipeline configuration, the collection of functions to
         // execute every time an event is triggered.
-        // Also, "TransformToXML" can be edited to be "TransformToJSON".
+        // Also, "TransformToXML" can be edited as "TransformToJSON" for JSON format.
         edgexSdk.SetFunctionsPipeline(
                 transforms.NewFilter(deviceNames).FilterByDeviceName,
                 transforms.NewConversion().TransformToXML,
@@ -555,9 +555,9 @@ level=INFO ts=2020-09-18T10:10:22.624535012Z app=sampleFilterXml source=server.g
 <Event><ID>b53ae300-6bcc-42a4-bf3b-f58165d890f3</ID><Pushed>0</Pushed><Device>Simple-Device02</Device><Created>1600422912988</Created><Modified>0</Modified><Origin>1600422912986695320</Origin><Readings><Id>0305fccf-e5bd-45ba-a0f5-5fe900244751</Id><Pushed>0</Pushed><Created>0</Created><Origin>1600422912</Origin><Modified>0</Modified><Device>Simple-Device02</Device><Name>echoString</Name><Value>HELLO</Value><ValueType>String</ValueType><FloatEncoding></FloatEncoding><BinaryValue></BinaryValue><MediaType></MediaType></Readings></Event>
 ```
 
-As our device service keeps sending events with the value "HELLO" every 5 seconds, we can see the XML messages. To test how the message changes, we can send commands to the device service via the core command service:
+As our device service keeps sending events with the value "HELLO" once every 5 seconds, we can see the XML messages. To test how the message changes, we can send commands to the device service via the core command service:
 ```sh
-# Query with the gathered IDs:
+# Query with the gathered IDs (the DEVICE_ID and COMMAND_ID variables are defined earlier):
 $ curl http://localhost:48082/api/v1/device/$DEVICE_ID/command/$COMMAND_ID \
     -s \
     -X PUT \
@@ -566,11 +566,13 @@ $ curl http://localhost:48082/api/v1/device/$DEVICE_ID/command/$COMMAND_ID \
     -d '{"echoString": "HELLO, WORLD"}'
 ```
 
+Then, the app service will print out XML message with the new string "HELLO, WORLD" and this shows the new string went throught the services well.
+
 <br/>
 
 ## Conclusion
 
-So far we prepared Ubuntu server 20.10 on RPI, launched EdgeX services, and created the device and app services. Although there are many unwritten details to keep it simple, now we know about the flow of EdgeX service development - where the important files are and how to build/test. To me, the benefit of using EdgeX is that all the queries get stored without concern of DB management and that is a huge plus if we deploy tons of edge devices everywhere. As we could see, running EdgeX on RPI is not difficult at all. Everything is ready there for us and our exciting IoT projects!
+In this tutorial, we prepared Ubuntu server 20.10 on RPI, launched EdgeX services, and created the custom device and app services. Although there are many unwritten details to keep it simple, now we know about the flow of EdgeX service development - where the important files are and how to build/test. To me, the benefit of using EdgeX is that all the queries get stored without concern of DB management and that is a huge plus if we deploy tons of edge devices everywhere. As we could see, running EdgeX on RPI is not difficult at all. Everything is ready there for us and the next exciting IoT projects!
 
 <br/>
 

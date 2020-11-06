@@ -2,7 +2,7 @@
 
 # 3. How to install EdgeX with a virtual device service
 
-All the tools to run EdgeX services is ready. A EdgeX stack consists of many docker containers but users don't need to launch one by one since the EdgeX team offers Docker-compose files per each release iteration. 
+The tools to run EdgeX services are ready. The EdgeX stack consists of many docker containers but users don't need to launch one by one since the EdgeX team offers Docker-compose files per each release iteration. 
 
 <br/>
 
@@ -33,9 +33,13 @@ docker-compose-geneva-ui-arm64.yml
 docker-compose-geneva-ui.yml
 docker-compose-portainer.yml
 
-# There are several compose files but don't need to use everything to launch for our purpose. First of all, ARM64 version should be used for RPI. Redis is the choice of DB because of MongoDB's license. Security is out of scope in this tutorial. With these criteria, we will use "docker-compose-geneva-redis-no-secty-arm64.yml". 
+# There are several compose files but we only need one to launch for our purpose. 
+# - ARM64 version should be used for RPI. 
+# - Redis is the choice of DB because of MongoDB's license. 
+# - Security is out of scope in this tutorial. 
+# With these criteria, we will use "docker-compose-geneva-redis-no-secty-arm64.yml". 
 
-# Before launch, let's remove the device-virtual and device-rest block in the compose file.
+# Before launch, let's remove the device-virtual and device-rest blocks in the compose file.
 $ vi docker-compose-geneva-redis-no-secty-arm64.yml
 
 # This command launches the stack but might take couple minutes depends on the network.
@@ -66,15 +70,19 @@ edgexfoundry/docker-support-notifications-go-arm64:1.2.1   Up 22 seconds
 arm64v8/redis:5.0.8-alpine                                 Up 26 seconds
 edgexfoundry/docker-edgex-consul-arm64:1.2.0               Up 26 seconds
 portainer/portainer
+
+# If there is a device-virtual still running, stop the services with volume reset and start again
+$ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml down -v
+$ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml up -d
 ```
 
 <br/>
 
-The names of the launched services can be found if we think about the diagram:
+The EdgeX structure diagram clearly shows the purpose of each service:
 
 ![EdgeX Architecture Diagram (Jun/12 2020)](./assets/EdgeX-Arch-Jun12-20.png.jpg)
 
-There are the core services in the middle. Devices services will talk to the hardwares. Supporting services will inject business logics and run actions scheduled. Application services will interact with frontend or external cloud services. All the well designed services are just launched with the one line of command!
+There are the core services in the middle. Devices services will talk to the hardwares. Supporting services will inject rules and run actions scheduled. Application services will interact with frontend or external cloud services. All the well designed services are just launched with the one line of command!
 
 <br/>
 
@@ -99,7 +107,7 @@ Also docker-compose can be used to monitor logs:
 $ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml logs -f {data|command|metadata}
 ```
 
-Lastly, a local web service "portainer" can be launched to monitor Docker services but it is not a command line tool so that let's use a web browser from the host machine. Before launch it, we need to edit a line in the compose file:
+Lastly, a local web service "Portainer" can be launched to monitor Docker services but it is not a command line tool so that let's use a web browser from the host machine. Before launch it, we need to edit a line in the compose file:
 ```sh
 # Open and edit the "docker-compose-portainer.yml" 
 # and update a line under the ports section from -"127.0.0.1:9000:9000" to - "9000:9000" to allow accesses from other machines.

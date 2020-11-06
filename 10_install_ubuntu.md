@@ -5,7 +5,7 @@
 
 # 1. How to install Ubuntu on RPI
 
-RPI uses micro SD card as its main disk storage. Ubuntu server 20.10 image file can be downloaded from Canonical and the file can be flashed to a micro SD card by using different ways.
+RPI uses micro SD card as its main disk storage. Ubuntu server 20.10 image file can be downloaded from Canonical and the file can be flashed to a micro SD card by using various ways.
 
 <br/>
 
@@ -17,7 +17,7 @@ The OS image file can be found from [https://ubuntu.com/download/raspberry-pi](h
 
 <br/>
 
-As previously said the 64 bit version of Ubuntu server 20.10 will be used so that click the button on the web page or run below command:
+As mentioned earlier the 64 bit version of Ubuntu server 20.10 will be used so that click the button on the web page or run below command:
 ```sh
 $ cd ~/Downlaods
 $ wget https://ubuntu.com/download/raspberry-pi/thank-you?version=20.10&architecture=server-arm64+raspi
@@ -96,7 +96,7 @@ ethernets:
 
 The configuration updated as below has some assumptions:
 1. There is a WiFi router and it has access point with SSID "office-1a" and password "1a-office" for example.
-2. The ethernet of RPI will have a static IP 192.168.0.2 so that we can have an 1:1 ethernet connection even if there is no router available (If the host's ethernet is being used, just keep the ethernets section as the original).
+2. The ethernet of RPI will have a static IP 192.168.0.2 so that we can have the 1:1 direct ethernet connection. This can be helpful even if there is no router available (If the host's ethernet is being used, just keep the ethernets section as the original).
 ```yml
 version: 2
 ethernets:
@@ -117,7 +117,7 @@ wifis:
 
 Also, some sshd config can be edited:
 ```sh
-# This changes the sshd port from 22 to 2222
+# This replaces the sshd port from 22 to 2222
 $ sudo bash -c \
     "sed -i '/#Port 22/c\Port 2222' /media/$USER/writable/etc/ssh/sshd_config"
 
@@ -132,7 +132,7 @@ All the network configuration is done. Please eject the micro SD card from the h
 
 ## 1.4 First boot
 
-Now the micro SD card just flashed should be inserted to the RPI as well as the USB-C power adapter. First boot takes some time because it does some work behind of the scene include re-partitioning.
+Now the micro SD card just flashed should be inserted to the RPI as well as the USB-C power adapter. First boot takes some time because it does some work behind of the scene include disk re-partitioning.
 
 We should change the host machine's ethernet configuration while the RPI's first boot:
 ```sh
@@ -192,7 +192,7 @@ ubuntu@ubuntu:~$
 
 <br/>
 
-So, now the RPI is accessable via SSH and ready to be used!
+So, now the RPI is accessible via SSH and ready to be used!
 
 <br/>
 

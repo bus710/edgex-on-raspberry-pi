@@ -8,7 +8,7 @@ The Ubuntu server 20.10 is running on the RPI and we can access via SSH. This ch
 
 ## 2.1 Hostname and Timezone
 
-The RPI has its hostname as "ubuntu", which is fine as long as there are only one machine has the name. However, as a developer runs more RPIs, there are more chances to make mistakes if all the RPIs have same name. To change the name (but pick a editor you like):
+The RPI has its hostname as "ubuntu", which is fine if there is only one machine has that name. However, as we run more RPIs, there are more chances to make mistakes if all the RPIs have a same host name. To change the name (but pick a editor you like):
 ```sh
 # Login to the RPI via ssh
 $ sudo vi /etc/hostname
@@ -42,7 +42,7 @@ $ sudo apt upgrade
 
 ## 2.4 Install basic packages
 
-Before EdgeX installation, we need to install some basic packages in advance. However, these packages are very general requirements for any kind of development as well. To install the packages:
+Before EdgeX installation, we need to install some basic packages in advance:
 ```sh
 sudo apt install -y \
     jq \
@@ -100,13 +100,13 @@ Docker is a containerization platform/tool. EdgeX' core services are convenientl
 # Install Docker
 $ sudo apt install -y docker.io docker-compose
 
-# To confirm the installed version
+# To confirm the versions installed 
 $ docker -v
 Docker version 19.03.8, build afacb8b7f0
 $ docker-compose -v
 docker-compose version 1.25.0, build unknown
 
-# Enable and start Docker daemon
+# Enable and start the Docker daemon
 $ sudo systemctl enable docker
 $ sudo systemctl start docker
 
