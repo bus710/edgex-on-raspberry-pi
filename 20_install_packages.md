@@ -46,15 +46,13 @@ Before EdgeX installation, we need to install some basic packages in advance. Ho
 ```sh
 sudo apt install -y \
     jq \
-    fzf \
     vim \
     git \
     tmux \
     curl \
     tree \
     make \
-    ranger \
-    ripgrep \
+    libzmq3-dev \
     gnupg-agent \
     build-essential
     ca-certificates \

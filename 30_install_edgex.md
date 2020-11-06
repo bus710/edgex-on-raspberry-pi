@@ -33,7 +33,12 @@ docker-compose-geneva-ui-arm64.yml
 docker-compose-geneva-ui.yml
 docker-compose-portainer.yml
 
-# There are several compose files but don't need to use everything to launch for our purpose. First of all, ARM64 version should be used for RPI. Redis is the choice of DB because of license matter. Security is out of scope in this tutorial. Running this commands takes some time depends on the network.
+# There are several compose files but don't need to use everything to launch for our purpose. First of all, ARM64 version should be used for RPI. Redis is the choice of DB because of MongoDB's license. Security is out of scope in this tutorial. With these criteria, we will use "docker-compose-geneva-redis-no-secty-arm64.yml". 
+
+# Before launch, let's remove the device-virtual and device-rest block in the compose file.
+$ vi docker-compose-geneva-redis-no-secty-arm64.yml
+
+# This command launches the stack but might take couple minutes depends on the network.
 $ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml up -d
 ...
 Creating edgex-redis       ... done
@@ -44,9 +49,7 @@ Creating edgex-core-metadata         ... done
 Creating edgex-core-command                   ... done
 Creating edgex-core-data             ... done
 Creating edgex-app-service-configurable-rules ... done
-Creating edgex-device-virtual                 ... done
 Creating edgex-sys-mgmt-agent                 ... done
-Creating edgex-device-rest                    ... done
 Creating edgex-kuiper                         ... done
 
 # Once launching is done, let's check what are up and running. Some columns are removed.
@@ -54,8 +57,6 @@ $ docker ps | less -ESX
 IMAGE                                                      STATUS       
 emqx/kuiper:0.4.2-alpine                                   Up 11 seconds
 edgexfoundry/docker-sys-mgmt-agent-go-arm64:1.2.1          Up 15 seconds
-edgexfoundry/docker-device-rest-go-arm64:1.1.1             Up 14 seconds
-edgexfoundry/docker-device-virtual-go-arm64:1.2.2          Up 15 seconds
 edgexfoundry/docker-app-service-configurable-arm64:1.2.0   Up 14 seconds
 edgexfoundry/docker-core-command-go-arm64:1.2.1            Up 18 seconds
 edgexfoundry/docker-core-data-go-arm64:1.2.1               Up 19 seconds
@@ -69,11 +70,11 @@ portainer/portainer
 
 <br/>
 
-The names of the launched services might be familiar if we think about the diagram:
+The names of the launched services can be found if we think about the diagram:
 
 ![EdgeX Architecture Diagram (Jun/12 2020)](./assets/EdgeX-Arch-Jun12-20.png.jpg)
 
-There are the core services in the middle. Devices services will talk to the hardwares. Supporting services will inject business rules and run actions scheduled. Application services will interact with frontend and/or external cloud services. All the well considered services are just launched with one line!
+There are the core services in the middle. Devices services will talk to the hardwares. Supporting services will inject business logics and run actions scheduled. Application services will interact with frontend or external cloud services. All the well designed services are just launched with the one line of command!
 
 <br/>
 
@@ -98,13 +99,13 @@ Also docker-compose can be used to monitor logs:
 $ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml logs -f {data|command|metadata}
 ```
 
-Lastly, the local web service "portainer" can be launched to monitor EdgeX services but it is not a command line tool so that let's use a web browser from the host machine. Before launch it, we need to edit a line in the compose file:
+Lastly, a local web service "portainer" can be launched to monitor Docker services but it is not a command line tool so that let's use a web browser from the host machine. Before launch it, we need to edit a line in the compose file:
 ```sh
 # Open and edit the "docker-compose-portainer.yml" 
-# and update a line under the ports section from -"127.0.0.1:9000:9000" to - "9000:9000"
+# and update a line under the ports section from -"127.0.0.1:9000:9000" to - "9000:9000" to allow accesses from other machines.
 $ vi docker-compose-portainer.yml
 
-# Then launch it with this command
+# Then launch it with this command.
 $ docker-compose -f docker-compose-portainer.yml up -d
 ```
 

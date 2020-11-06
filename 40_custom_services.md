@@ -2,7 +2,7 @@
 
 # 4. How to develop custom device and app services 
 
-Launching the core services is the first step for EdgeX based development. However, how can we connect our own device and application to the core services? How can our services communicate with the core services? What would be the benefit of using EdgeX versus our own stand alone service? To find out the answers, let's create custom services. 
+Launching the core services is the first step for EdgeX based development. However, how can we connect our own device and app services to the core services? How can our services communicate with the core services? What would be the benefit of using EdgeX versus our own stand alone service? To find out the answers, let's create custom services. 
 
 <br/>
 
@@ -34,13 +34,11 @@ $ git clone --depth 1 \
     --branch v1.2.2 https://github.com/edgexfoundry/device-sdk-go.git
 
 # Relocate files
-$ mkdir ~/go/src/github.com/edgexfoundry/device-simple -p
-$ cp -rf device-sdk-go/example/* device-simple/
-$ cp device-sdk-go/Makefile device-simple/
-$ cp device-sdk-go/version.go device-simple/
-
-# Go to ~/go/src/github.com/edgexfoundry/device-sdk-go/device-simple
-$ cd device-simple
+$ mkdir ~/repo/device-simple -p
+$ cp -rf device-sdk-go/example/* ~/repo/device-simple/
+$ cp device-sdk-go/Makefile ~/repo/device-simple/
+$ cp device-sdk-go/version.go ~/repo/device-simple/
+$ cd ~/repo/device-simple
 
 # Check contents
 $ tree
@@ -129,15 +127,18 @@ func (s *SimpleDriver) Initialize(
         s.lc = lc
         s.asyncCh = asyncCh
         s.deviceCh = deviceCh
-        s.echoString = ""
-        go s.Echo()
+
+        s.echoString = "" // Added
+        go s.Echo() // Added
 
         return nil
 }
 
+// A new function
 func (s *SimpleDriver) Echo(){
-   	tick := time.Tick(5000 * time.Millisecond)
-    for {
+    tick := time.Tick(5000 * time.Millisecond)
+     
+    for { 
         select{
             case <-tick:
                 if s.echoString != "" {
@@ -148,7 +149,7 @@ func (s *SimpleDriver) Echo(){
                     cValueSlice := make([]*dsModels.CommandValue, 0)
                     cValueSlice = append(cValueSlice, cValue)
                     d := dsModels.AsyncValues{
-                        DeviceName:    "Simple-Device01",
+                        DeviceName:    "Simple-Device02",
                         CommandValues: cValueSlice,
                     }
                     s.asyncCh <- &d
@@ -164,6 +165,7 @@ func (s *SimpleDriver) HandleReadCommands(
 
         s.lc.Debug(fmt.Sprintf("SimpleDriver.HandleReadCommands: protocols: %v resource: %v attributes: %v", protocols, reqs[0].DeviceResourceName, reqs[0].Attributes))
 
+        // Replaced the contents of this block
         if len(reqs) == 1 {
                 res = make([]*dsModels.CommandValue, 1)
                 now := time.Now().UnixNano()
@@ -172,6 +174,7 @@ func (s *SimpleDriver) HandleReadCommands(
                         res[0] = cv
                 } 
         }
+
         return
 }
 
@@ -183,6 +186,7 @@ func (s *SimpleDriver) HandleWriteCommands(
 
         var err error
 
+        // Replaced the contents of this block
         for i, r := range reqs {
                 s.lc.Info(fmt.Sprintf("SimpleDriver.HandleWriteCommands: protocols: %v, resource: %v, parameters: %v", protocols, reqs[i].DeviceResourceName, params[i]))
 
@@ -205,7 +209,7 @@ $ gofmt -s -w .
 $ make build
 ```
 
-<br/><br/>
+<br/>
 
 ### 4.1.3 Update config files
 
@@ -223,7 +227,7 @@ BootTimeout = 30000
 CheckInterval = '10s'
 ClientMonitor = 15000
 Host = '172.17.0.1'
-Port = 49990
+Port = 49980 # Don't use a port being used!
 Protocol = 'http'
 StartupMsg = 'device simple started'
 Timeout = 20000
@@ -274,7 +278,7 @@ File = ''
 
 # Pre-define Devices
 [[DeviceList]]
-  Name = 'Simple-Device01'
+  Name = 'Simple-Device02'
   Profile = 'Simple-Device'
   Description = 'Example of Simple Device'
   Labels = [ 'industrial' ]
@@ -282,6 +286,8 @@ File = ''
     [DeviceList.Protocols.other]
       Address = 'simple01'
       Port = '300'
+
+# Auto events are removed for this tutorial
 ```
 
 For Simple-Driver.yaml:
@@ -336,7 +342,7 @@ coreCommands:
           expectedValues: []
 ```
 
-<br/><br/>
+<br/>
 
 ### 4.1.4 Launch and test
 
@@ -353,36 +359,58 @@ level=INFO ts=2020-09-15T10:48:51.814815574Z app=device-simple source=service.go
 Please open a new terminal and curl can be used to check the state of the device service:
 ```sh
 # Basic info of the device service.
-$ curl http://localhost:48081/api/v1/addressable -X GET
-$ curl http://localhost:48081/api/v1/device/name/Simple-Device01 -X GET -s -S
-$ curl http://localhost:48080/api/v1/valuedescriptor/name/echoString -X GET -s -S
+$ curl http://localhost:48081/api/v1/addressable -X GET -s | jq '.[] | {name,address,port}'
+{
+  "name": "device-simple",
+  "address": "172.17.0.1",
+  "port": 49980
+}
 
-# To find available commands. The retured URL may vary.
-$ curl http://localhost:48082/api/v1/device | json_pp
-...
-"url" : "http://core-command:48082/api/v1/device/61e0fba4-50df-4f3b-b455-a8f4c65aa4b9/command/6d28898d-8714-4e25-9442-7e6d34bf3c38",
-...
+# Returned IDs of our device service may vary.
+$ curl http://localhost:48081/api/v1/device/name/Simple-Device02 -X GET -s -S | jq '.name,.id,.service.id'
+"Simple-Device02"
+"9be2790a-dab9-447f-ac59-74505527252f"
+"20a1fec0-de09-4af8-bb20-000b33573f9e"
 
-# To change echoString value (change core-command to localhost) - method 1
-$ curl http://localhost:48082/api/v1/device/name/Simple-Device01 \
+# Returned ID of the value descriptor may vary.
+$ curl http://localhost:48080/api/v1/valuedescriptor/name/echoString -X GET -s -S | jq '.id'
+"0242e148-a5d3-40a5-a850-c5af5dd8456f"
+
+# To find out the available device name and id. The retured URL may vary.
+$ curl http://localhost:48082/api/v1/device -s | jq '.[] | select(.name == "Simple-Device02").id,.name'
+"9be2790a-dab9-447f-ac59-74505527252f"
+"Simple-Device02"
+
+# To find out the available commands id. The returned URL may vary.
+$ curl http://localhost:48082/api/v1/device -s | jq '.[] | select(.name == "Simple-Device02").commands | .[] | .id'
+"80f2ba5e-73d1-4130-b039-c158a2f43388"
+
+# With the commands above, we could find the ID of the device/command
+# Device ID: "9be2790a-dab9-447f-ac59-74505527252f"
+# Command ID: "80f2ba5e-73d1-4130-b039-c158a2f43388"
+
+# To change echoString value, let's store the IDs first:
+$ DEVICE_ID=$(curl http://localhost:48082/api/v1/device -s | jq -r '.[] | select(.name == "Simple-Device02").id')
+$ COMMAND_ID=$(curl http://localhost:48082/api/v1/device -s | jq -r '.[] | select(.name == "Simple-Device02").commands | .[] | .id')
+
+# Query with the gathered IDs:
+$ curl http://localhost:48082/api/v1/device/$DEVICE_ID/command/$COMMAND_ID \
+    -s \
     -X PUT \
     -H 'Content-Type: application/json' \
     -H 'cache-control: no-cache' \
-    -d '{"echoString": "HELLO"}' \
-    -v
-
-# To change echoString value (change core-command to localhost) - method 2
-$ curl http://localhost:48082/api/v1/device/61e0fba4-50df-4f3b-b455-a8f4c65aa4b9/command/6d28898d-8714-4e25-9442-7e6d34bf3c38 \
-    -X PUT \
-    -H 'Content-Type: application/json' \
-    -H 'cache-control: no-cache' \
-    -d '{"echoString": "HELLO"}' \
-    -v
+    -d '{"echoString": "HELLO"}'
 
 # To check the value changed in 3 different ways
-$ curl http://localhost:48080/api/v1/reading/device/Simple-Device01/1 -X GET -s -S | json_pp
-$ curl http://localhost:48082/api/v1/device/name/Simple-Device01/command/echoString -X GET | json_pp
-$ curl http://localhost:49991/api/v1/device/name/Simple-Device01/echoString -X GET -s -S | json_pp
+
+# Asking to the core data service
+$ curl http://localhost:48080/api/v1/reading/device/Simple-Device02/1 -X GET -s -S | json_pp
+
+# Asking to the core command service
+$ curl http://localhost:48082/api/v1/device/name/Simple-Device02/command/echoString -X GET | json_pp
+
+# Asking to the device service itself
+$ curl http://localhost:49980/api/v1/device/name/Simple-Device02/echoString -X GET -s -S | json_pp
 
 ...
 "name" : "echoString",
@@ -390,7 +418,7 @@ $ curl http://localhost:49991/api/v1/device/name/Simple-Device01/echoString -X G
 ...
 
 # To check the latest 10 async events/readings of the device service via the core data service
-$ curl http://localhost:48080/api/v1/event/device/Simpl03-Device01/10
+$ curl -s http://localhost:48080/api/v1/event/device/Simple-Device02/1 | json_pp
 ```
 
 More APIs can be found from:
@@ -401,14 +429,14 @@ More APIs can be found from:
 
 ## 4.2 How to use EdgeX app functions SDK
 
+The EdgeX stack works great and our own custom device service, too. Now, it is the time to create an app service, which gets messages from the device service via the core data.
+
 To make our own app service, readers should:
-- Install ZeroMQ library
 - Clone EdgeX app functions SDK
 - Edit the configuration file
 - Compile, launch, and test
 
-
-EdgeX foundry offers great amount of documents as well:
+EdgeX foundry offers plenty of documents as well:
 - https://docs.edgexfoundry.org/1.2/getting-started/ApplicationFunctionsSDK/
 - https://docs.edgexfoundry.org/1.2/microservices/application/ApplicationServices/
 - https://docs.edgexfoundry.org/1.2/examples/AppServiceExamples/
@@ -418,56 +446,13 @@ EdgeX foundry offers great amount of documents as well:
 
 <br/>
 
-### 4.2.1 ZeroMQ library installation
+### 4.2.1 Build app functions SDK example
 
-The app functions SDK utilizes ZeroMQ to receive messages from the core data service. To build the examples, first we need to install the library. This Gist shows all the required steps:
-- https://gist.github.com/katopz/8b766a5cb0ca96c816658e9407e83d00
-
-Below commands are mostly same as the Gist with subtle update:
+Now, we can clone and build one of the app functions SDK examples:
 ```sh
-# Ref http://zeromq.org/intro:get-the-software
-$ wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
+# Originally, the app functions SDK requires the libzmq library and sometimes we need to build it from the source code. However, Ubuntu server 20.10 comes with the libzmq3-dev package and it is already installed.
 
-# Unpack tarball package
-$ tar xvzf zeromq-4.2.2.tar.gz
-
-# Install dependencies
-$ sudo apt-get update && \
-$ sudo apt-get install -y libtool pkg-config build-essential autoconf automake uuid-dev
-
-# Create make file
-$ cd zeromq-4.2.2
-$ ./configure
-
-# Build and install(root permission only)
-$ sudo make install
-
-# Install zeromq driver on linux
-$ sudo ldconfig
-
-# Check installed
-$ ldconfig -p | grep zmq
-
-# Or
-$ ls -l /usr/local/lib/libzmq.*
-
-# Expected
-############################################################
-# libzmq.so.5 (libc6,x86-64) => /usr/local/lib/libzmq.so.5
-# libzmq.so (libc6,x86-64) => /usr/local/lib/libzmq.so
-############################################################
-
-$ echo "export PKG_CONFIG_PATH=\/usr\/local\/Cellar\/zeromq\/4.2.5\/lib\/pkgconfig\/" >> ~/.bashrc
-```
-
-<br/>
-
-### 4.2.2 Build app functions SDK example
-
-Now, we can clone and build one of the app functions SDK examples.
-
-```sh
-$ cd ~go/src/github.com/edgexfoundry
+$ cd ~/repo
 $ git clone https://github.com/edgexfoundry/edgex-examples
 $ cp -rf edgex-examples/application-services/custom/simple-filter-xml .
 $ cd simple-filter-xml
@@ -502,15 +487,15 @@ CGO_ENABLED=1 GO111MODULE=on go build -o app-service
 
 <br/>
 
-### 4.2.3 Customize app functions SDK example
+### 4.2.2 Edit the configuration file
 
 The app functions SDK offers handlers and filters for the message stream of EdgeX. Examples of app functions SDK show various use cases but we can start from the simplest one. In the previous step, the example is already compiled but we need to take a look into the main.go and res/configuration.toml files.
 
-The **res/configuration.toml** is the configuration file for this app function. Target message source can be specified as long as other settings. The sub section **ApplicationSettings** should have device name as target message source. Since our device service has the name as "Simple-Device01" in its configuration.toml, we need to write the same name for DeviceNames as below.
+The **res/configuration.toml** is the configuration file for this app function. Target message source can be specified as long as other settings. The sub section **ApplicationSettings** should have device name as target message source. Since our device service has the name as "Simple-Device02" in its configuration.toml, we need to write the same name for DeviceNames as below.
 
 ```toml
 [ApplicationSettings]
-DeviceNames = "Simple-Device01"
+DeviceNames = "Simple-Device02"
 ```
 
 The **main.go** is the place where the actual handlers and filters can be written. The structure and flow are straightforward. In the main function, it initializes the app SDK with a secret key. Then it reads the configuration.toml file and DeviceNames variable. Pipeline is configured with chained functions for message handling and filtering. The printXMLToConsole function is specified at the end of the chain so that we can write some code there to use the data filtered in the pipeline so that the incoming messages get passed to other go routines as we normally use Go. 
@@ -537,6 +522,7 @@ func main() {
 
         // 3) This is our pipeline configuration, the collection of functions to
         // execute every time an event is triggered.
+        // Also, "TransformToXML" can be edited to be "TransformToJSON".
         edgexSdk.SetFunctionsPipeline(
                 transforms.NewFilter(deviceNames).FilterByDeviceName,
                 transforms.NewConversion().TransformToXML,
@@ -557,6 +543,8 @@ func main() {
 }
 ```
 
+### 4.2.3 Customize app functions SDK example
+
 Since we already compiled this example (and main.go is not changed), we can just launch it:
 ```sh
 $ ./app-service
@@ -564,17 +552,18 @@ $ ./app-service
 level=INFO ts=2020-09-18T10:10:22.624535012Z app=sampleFilterXml source=server.go:350 msg="Starting HTTP Web Server on port :48095"
 ...
 
-<Event><ID>b53ae300-6bcc-42a4-bf3b-f58165d890f3</ID><Pushed>0</Pushed><Device>Simple-Device01</Device><Created>1600422912988</Created><Modified>0</Modified><Origin>1600422912986695320</Origin><Readings><Id>0305fccf-e5bd-45ba-a0f5-5fe900244751</Id><Pushed>0</Pushed><Created>0</Created><Origin>1600422912</Origin><Modified>0</Modified><Device>Simple-Device01</Device><Name>echoString</Name><Value>HELLO</Value><ValueType>String</ValueType><FloatEncoding></FloatEncoding><BinaryValue></BinaryValue><MediaType></MediaType></Readings></Event>
+<Event><ID>b53ae300-6bcc-42a4-bf3b-f58165d890f3</ID><Pushed>0</Pushed><Device>Simple-Device02</Device><Created>1600422912988</Created><Modified>0</Modified><Origin>1600422912986695320</Origin><Readings><Id>0305fccf-e5bd-45ba-a0f5-5fe900244751</Id><Pushed>0</Pushed><Created>0</Created><Origin>1600422912</Origin><Modified>0</Modified><Device>Simple-Device02</Device><Name>echoString</Name><Value>HELLO</Value><ValueType>String</ValueType><FloatEncoding></FloatEncoding><BinaryValue></BinaryValue><MediaType></MediaType></Readings></Event>
 ```
 
 As our device service keeps sending events with the value "HELLO" every 5 seconds, we can see the XML messages. To test how the message changes, we can send commands to the device service via the core command service:
 ```sh
-$ curl http://localhost:48082/api/v1/device/name/Simple-Device01 \
+# Query with the gathered IDs:
+$ curl http://localhost:48082/api/v1/device/$DEVICE_ID/command/$COMMAND_ID \
+    -s \
     -X PUT \
     -H 'Content-Type: application/json' \
     -H 'cache-control: no-cache' \
-    -d '{"echoString": "WORLD"}' \
-    -v
+    -d '{"echoString": "HELLO, WORLD"}'
 ```
 
 <br/>
