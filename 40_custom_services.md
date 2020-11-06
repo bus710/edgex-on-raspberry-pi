@@ -1,3 +1,590 @@
 [To README](README.md)
 
-4. How to develop custom device and app services 
+# 4. How to develop custom device and app services 
+
+Launching the core services is the first step for EdgeX based development. However, how can we connect our own device and application to the core services? How can our services communicate with the core services? What would be the benefit of using EdgeX versus our own stand alone service? To find out the answers, let's create custom services. 
+
+<br/>
+
+## 4.1 How to use EdgeX device service SDK
+
+This chapter shows how to make an example device service based on EdgeX device service SDK, which offers basic capability to communicate with EdgeX core services. We will implement an "echo" feature so that it returns strings as same as it receives. With this example, readers can find API entries and handlers of EdgeX core services. 
+
+Below resources can be used to learn more about the device service SDK:
+- https://docs.edgexfoundry.org/1.2/microservices/device/sdk/Ch-DeviceSDK/
+- https://docs.edgexfoundry.org/1.2/getting-started/Ch-GettingStartedSDK-Go/
+- https://github.com/edgexfoundry/device-sdk-go
+
+To make our own device service, readers should:
+- Clone EdgeX device service SDK
+- Relocate files
+- Edit configuration and Go files
+- Compile, launch, and test
+
+<br/>
+
+### 4.1.1 Clone and config SDK
+
+The device service SDK can be cloned and configured so that we can run test build as following:
+```sh
+# Clone SDK
+$ mkdir ~/go/src/github.com/edgexfoundry -p
+$ cd ~/go/src/github.com/edgexfoundry
+$ git clone --depth 1 \
+    --branch v1.2.2 https://github.com/edgexfoundry/device-sdk-go.git
+
+# Relocate files
+$ mkdir ~/go/src/github.com/edgexfoundry/device-simple -p
+$ cp -rf device-sdk-go/example/* device-simple/
+$ cp device-sdk-go/Makefile device-simple/
+$ cp device-sdk-go/version.go device-simple/
+
+# Go to ~/go/src/github.com/edgexfoundry/device-sdk-go/device-simple
+$ cd device-simple
+
+# Check contents
+$ tree
+.
+├── cmd
+│   └── device-simple
+│       ├── Attribution.txt
+│       ├── Dockerfile
+│       ├── main.go
+│       └── res
+│           ├── configuration.toml
+│           ├── off.jpg
+│           ├── on.png
+│           ├── provisionwatcher.json
+│           └── Simple-Driver.yaml
+├── driver
+│   └── simpledriver.go
+├── Makefile
+├── README.md
+└── version.go
+
+4 directories, 12 files
+
+# Edit main.go: this command replaces "device-sdk-go" to "device-simple"
+$ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\"/c\\t\"github.com\/edgexfoundry\/device-simple\"' ./cmd/device-simple/main.go
+
+# Edit main.go: this command removes "example/" 
+$ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\/example\/driver\"/c\\t\"github.com\/edgexfoundry\/device-simple\/driver\"' ./cmd/device-simple/main.go
+
+# Edit Makefile: this command replaces "device-sdk-go" to "device-simple"
+$ sed -i '/GOFLAGS=-ldflags \"-X github.com\/edgexfoundry\/device-sdk-go.Version=$(VERSION)\"/c\GOFLAGS=-ldflags \"-X github.com\/edgexfoundry\/device-simple.Version=$(VERSION)\"' ./Makefile
+
+# Edit Makefile: these commands removes "example/"
+$ sed -i '/MICROSERVICES=example\/cmd\/device-simple\/device-simple/c\MICROSERVICES=cmd\/device-simple\/device-simple' ./Makefile
+$ sed -i '/example\/cmd\/device-simple\/device-simple:/c\cmd\/device-simple\/device-simple:' ./Makefile
+$ sed -i '/$(GO) build $(GOFLAGS) -o $@ .\/example\/cmd\/device-simple/c\\t$(GO) build $(GOFLAGS) -o $@ .\/cmd\/device-simple' ./Makefile
+
+# Enable Go module 
+$ go mod init
+$ echo "require (
+    github.com/edgexfoundry/device-sdk-go v1.2.2
+    github.com/edgexfoundry/go-mod-core-contracts v0.1.58
+)" >> go.mod
+
+# Test build
+$ make build
+$ file cmd/device-simple/device-simple
+cmd/device-simple/device-simple: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, Go BuildID=azNP-8ouXJ3WjHlZkFSb/XRFJnCq3Yoz8hQqzObnB/Q1HqdTQy74eFvb6rvbrv/d3hOwwcqL_RurDo7Aesj, not stripped
+```
+
+<br/>
+
+### 4.1.2 Update handlers
+
+There is a file, which has all the handlers for us so that we can edit the code to interact with the core services:
+```sh
+# Update go file for handlers
+$ vi driver/simpledriver.go
+```
+
+In the go file, we need to change:
+- SimpleDriver struct
+- Initialize method
+- HandleReadCommands method
+- HandleWriteCommands method
+- HandleEcho method (new!)
+- Other parts shouldn't be changed
+ 
+```go
+type SimpleDriver struct {
+        lc           logger.LoggingClient
+        asyncCh      chan<- *dsModels.AsyncValues
+        deviceCh     chan<- []dsModels.DiscoveredDevice
+        switchButton bool
+        xRotation    int32
+        yRotation    int32
+        zRotation    int32
+        echoString   string // Added
+}
+
+func (s *SimpleDriver) Initialize(
+    lc logger.LoggingClient, 
+    asyncCh chan<- *dsModels.AsyncValues, 
+    deviceCh chan<- []dsModels.DiscoveredDevice) error {
+
+        s.lc = lc
+        s.asyncCh = asyncCh
+        s.deviceCh = deviceCh
+        s.echoString = ""
+        go s.Echo()
+
+        return nil
+}
+
+func (s *SimpleDriver) Echo(){
+   	tick := time.Tick(5000 * time.Millisecond)
+    for {
+        select{
+            case <-tick:
+                if s.echoString != "" {
+                    cValue := dsModels.NewStringValue(
+                        "echoString",
+                        int64(time.Now().Unix()), s.echoString)
+
+                    cValueSlice := make([]*dsModels.CommandValue, 0)
+                    cValueSlice = append(cValueSlice, cValue)
+                    d := dsModels.AsyncValues{
+                        DeviceName:    "Simple-Device01",
+                        CommandValues: cValueSlice,
+                    }
+                    s.asyncCh <- &d
+                }
+        }
+    }
+}
+
+func (s *SimpleDriver) HandleReadCommands(
+    deviceName string, 
+    protocols map[string]contract.ProtocolProperties, 
+    reqs []dsModels.CommandRequest) (res []*dsModels.CommandValue, err error) {
+
+        s.lc.Debug(fmt.Sprintf("SimpleDriver.HandleReadCommands: protocols: %v resource: %v attributes: %v", protocols, reqs[0].DeviceResourceName, reqs[0].Attributes))
+
+        if len(reqs) == 1 {
+                res = make([]*dsModels.CommandValue, 1)
+                now := time.Now().UnixNano()
+                if reqs[0].DeviceResourceName == "echoString" {
+                        cv := dsModels.NewStringValue(reqs[0].DeviceResourceName, now, s.echoString)
+                        res[0] = cv
+                } 
+        }
+        return
+}
+
+func (s *SimpleDriver) HandleWriteCommands(
+    deviceName string, 
+    protocols map[string]contract.ProtocolProperties, 
+    reqs []dsModels.CommandRequest,
+    params []*dsModels.CommandValue) error {
+
+        var err error
+
+        for i, r := range reqs {
+                s.lc.Info(fmt.Sprintf("SimpleDriver.HandleWriteCommands: protocols: %v, resource: %v, parameters: %v", protocols, reqs[i].DeviceResourceName, params[i]))
+
+                switch r.DeviceResourceName {
+                case "echoString":
+                        if s.echoString, err = params[i].StringValue(); err != nil {
+                                err := fmt.Errorf("SimpleDriver.HandleWriteCommands; the data type of parameter should be Boolean, parameter: %s", params[0].String())
+                                return err
+                        }
+                }
+        }
+
+        return nil
+}
+```
+
+Code formatting and test build:
+```sh
+$ gofmt -s -w .
+$ make build
+```
+
+<br/><br/>
+
+### 4.1.3 Update config files
+
+As the code got updated, this device service can handle read and write requests from core services. The device service also needs to register itself to the core services and these are the files to be used for the registration:
+- ~/go/src/github.com/edgexfoundry/device-simple/cmd/device-simple/res/**configuration.toml**
+- ~/go/src/github.com/edgexfoundry/device-simple/cmd/device-simple/res/**Simple-Driver.yaml**
+
+For configuration.toml:
+```toml
+[Writable]
+LogLevel = 'INFO'
+
+[Service]
+BootTimeout = 30000
+CheckInterval = '10s'
+ClientMonitor = 15000
+Host = '172.17.0.1'
+Port = 49990
+Protocol = 'http'
+StartupMsg = 'device simple started'
+Timeout = 20000
+ConnectRetries = 20
+Labels = []
+EnableAsyncReadings = true
+AsyncBufferSize = 16
+
+[Registry]
+Host = 'localhost'
+Port = 8500
+Type = 'consul'
+
+[Clients]
+  [Clients.Data]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48080
+
+  [Clients.Metadata]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48081
+
+  [Clients.Logging]
+  Protocol = 'http'
+  Host = 'localhost'
+  Port = 48061
+
+[Device]
+  DataTransform = true
+  InitCmd = ''
+  InitCmdArgs = ''
+  MaxCmdOps = 128
+  MaxCmdValueLen = 256
+  RemoveCmd = ''
+  RemoveCmdArgs = ''
+  ProfilesDir = './res'
+  UpdateLastConnected = false
+  [Device.Discovery]
+    Enabled = false
+    Interval = '30s'
+
+# Remote and file logging disabled so only stdout logging is used
+[Logging]
+EnableRemote = false
+File = ''
+
+# Pre-define Devices
+[[DeviceList]]
+  Name = 'Simple-Device01'
+  Profile = 'Simple-Device'
+  Description = 'Example of Simple Device'
+  Labels = [ 'industrial' ]
+  [DeviceList.Protocols]
+    [DeviceList.Protocols.other]
+      Address = 'simple01'
+      Port = '300'
+```
+
+For Simple-Driver.yaml:
+```yaml
+name: "Simple-Device"
+manufacturer: "HP Corp."
+model: "ED-01"
+description: "Example of Simple Echo Device"
+
+deviceResources:
+  -
+    name: "echoString"
+    description: "Echo String"
+    properties:
+      value:
+        { type: "String", readWrite: "RW", defaultValue: "" }
+      units:
+        { type: "String", readWrite: "R", defaultValue: "" }
+
+deviceCommands:
+  -
+    name: "echoString"
+    get:
+      - { operation: "get", deviceResource: "echoString" }
+    set:
+      - { operation: "set", deviceResource: "echoString", parameter: "false" }
+
+coreCommands:
+  -
+    name: "echoString"
+    get:
+      path: "/api/v1/device/{deviceId}/echoString"
+      responses:
+        -
+          code: "200"
+          description: ""
+          expectedValues: ["echoString"]
+        -
+          code: "503"
+          description: "echo string unavailable"
+          expectedValues: []
+    put:
+      path: "/api/v1/device/{deviceId}/echoString"
+      parameterNames: ["echoString"]
+      responses:
+        -
+          code: "200"
+          description: ""
+        -
+          code: "503"
+          description: "echo string unavailable"
+          expectedValues: []
+```
+
+<br/><br/>
+
+### 4.1.4 Launch and test
+
+The code was compiled well and the files for registration are ready. When the binary of this device service is executed, it does bootstrapping for the communication with the core services and uses the files to tell what it is and available commands. To excute: 
+```sh
+$ cd cmd/device-simple
+$ ./device-simple
+...
+level=INFO ts=2020-09-15T10:48:51.813731783Z app=device-simple source=init.go:42 msg="Service clients initialize successful."
+level=INFO ts=2020-09-15T10:48:51.814815574Z app=device-simple source=service.go:83 msg="Device Service device-simple doesn't exist, creating a new one"
+...
+```
+
+Please open a new terminal and curl can be used to check the state of the device service:
+```sh
+# Basic info of the device service.
+$ curl http://localhost:48081/api/v1/addressable -X GET
+$ curl http://localhost:48081/api/v1/device/name/Simple-Device01 -X GET -s -S
+$ curl http://localhost:48080/api/v1/valuedescriptor/name/echoString -X GET -s -S
+
+# To find available commands. The retured URL may vary.
+$ curl http://localhost:48082/api/v1/device | json_pp
+...
+"url" : "http://core-command:48082/api/v1/device/61e0fba4-50df-4f3b-b455-a8f4c65aa4b9/command/6d28898d-8714-4e25-9442-7e6d34bf3c38",
+...
+
+# To change echoString value (change core-command to localhost) - method 1
+$ curl http://localhost:48082/api/v1/device/name/Simple-Device01 \
+    -X PUT \
+    -H 'Content-Type: application/json' \
+    -H 'cache-control: no-cache' \
+    -d '{"echoString": "HELLO"}' \
+    -v
+
+# To change echoString value (change core-command to localhost) - method 2
+$ curl http://localhost:48082/api/v1/device/61e0fba4-50df-4f3b-b455-a8f4c65aa4b9/command/6d28898d-8714-4e25-9442-7e6d34bf3c38 \
+    -X PUT \
+    -H 'Content-Type: application/json' \
+    -H 'cache-control: no-cache' \
+    -d '{"echoString": "HELLO"}' \
+    -v
+
+# To check the value changed in 3 different ways
+$ curl http://localhost:48080/api/v1/reading/device/Simple-Device01/1 -X GET -s -S | json_pp
+$ curl http://localhost:48082/api/v1/device/name/Simple-Device01/command/echoString -X GET | json_pp
+$ curl http://localhost:49991/api/v1/device/name/Simple-Device01/echoString -X GET -s -S | json_pp
+
+...
+"name" : "echoString",
+"value" : "HELLO",
+...
+
+# To check the latest 10 async events/readings of the device service via the core data service
+$ curl http://localhost:48080/api/v1/event/device/Simpl03-Device01/10
+```
+
+More APIs can be found from:
+- https://docs.edgexfoundry.org/1.2/api/core/Ch-APICoreCommand/
+- https://app.swaggerhub.com/search?type=API&query=%20edgex
+
+<br/>
+
+## 4.2 How to use EdgeX app functions SDK
+
+To make our own app service, readers should:
+- Install ZeroMQ library
+- Clone EdgeX app functions SDK
+- Edit the configuration file
+- Compile, launch, and test
+
+
+EdgeX foundry offers great amount of documents as well:
+- https://docs.edgexfoundry.org/1.2/getting-started/ApplicationFunctionsSDK/
+- https://docs.edgexfoundry.org/1.2/microservices/application/ApplicationServices/
+- https://docs.edgexfoundry.org/1.2/examples/AppServiceExamples/
+- https://docs.edgexfoundry.org/1.2/getting-started/ApplicationFunctionsSDK/
+- https://github.com/edgexfoundry/app-functions-sdk-go
+- https://github.com/edgexfoundry/edgex-examples/blob/master/application-services/custom/simple-filter-xml/main.go
+
+<br/>
+
+### 4.2.1 ZeroMQ library installation
+
+The app functions SDK utilizes ZeroMQ to receive messages from the core data service. To build the examples, first we need to install the library. This Gist shows all the required steps:
+- https://gist.github.com/katopz/8b766a5cb0ca96c816658e9407e83d00
+
+Below commands are mostly same as the Gist with subtle update:
+```sh
+# Ref http://zeromq.org/intro:get-the-software
+$ wget https://github.com/zeromq/libzmq/releases/download/v4.2.2/zeromq-4.2.2.tar.gz
+
+# Unpack tarball package
+$ tar xvzf zeromq-4.2.2.tar.gz
+
+# Install dependencies
+$ sudo apt-get update && \
+$ sudo apt-get install -y libtool pkg-config build-essential autoconf automake uuid-dev
+
+# Create make file
+$ cd zeromq-4.2.2
+$ ./configure
+
+# Build and install(root permission only)
+$ sudo make install
+
+# Install zeromq driver on linux
+$ sudo ldconfig
+
+# Check installed
+$ ldconfig -p | grep zmq
+
+# Or
+$ ls -l /usr/local/lib/libzmq.*
+
+# Expected
+############################################################
+# libzmq.so.5 (libc6,x86-64) => /usr/local/lib/libzmq.so.5
+# libzmq.so (libc6,x86-64) => /usr/local/lib/libzmq.so
+############################################################
+
+$ echo "export PKG_CONFIG_PATH=\/usr\/local\/Cellar\/zeromq\/4.2.5\/lib\/pkgconfig\/" >> ~/.bashrc
+```
+
+<br/>
+
+### 4.2.2 Build app functions SDK example
+
+Now, we can clone and build one of the app functions SDK examples.
+
+```sh
+$ cd ~go/src/github.com/edgexfoundry
+$ git clone https://github.com/edgexfoundry/edgex-examples
+$ cp -rf edgex-examples/application-services/custom/simple-filter-xml .
+$ cd simple-filter-xml
+$ tree
+.
+├── Dockerfile
+├── EdgeX Application Function SDK Device Name.postman_collection.json
+├── EdgeX Applications Function SDK.postman_collection.json
+├── go.mod
+├── main.go
+├── Makefile
+└── res
+    └── configuration.toml
+
+1 directory, 7 files
+```
+
+Change go.mod of simple-filter-xml to be:
+```go
+go 1.15
+
+require (
+	github.com/edgexfoundry/app-functions-sdk-go v1.2.0
+)
+```
+
+Test build:
+```sh
+$ make build
+CGO_ENABLED=1 GO111MODULE=on go build -o app-service
+```
+
+<br/>
+
+### 4.2.3 Customize app functions SDK example
+
+The app functions SDK offers handlers and filters for the message stream of EdgeX. Examples of app functions SDK show various use cases but we can start from the simplest one. In the previous step, the example is already compiled but we need to take a look into the main.go and res/configuration.toml files.
+
+The **res/configuration.toml** is the configuration file for this app function. Target message source can be specified as long as other settings. The sub section **ApplicationSettings** should have device name as target message source. Since our device service has the name as "Simple-Device01" in its configuration.toml, we need to write the same name for DeviceNames as below.
+
+```toml
+[ApplicationSettings]
+DeviceNames = "Simple-Device01"
+```
+
+The **main.go** is the place where the actual handlers and filters can be written. The structure and flow are straightforward. In the main function, it initializes the app SDK with a secret key. Then it reads the configuration.toml file and DeviceNames variable. Pipeline is configured with chained functions for message handling and filtering. The printXMLToConsole function is specified at the end of the chain so that we can write some code there to use the data filtered in the pipeline so that the incoming messages get passed to other go routines as we normally use Go. 
+
+```go
+func main() {
+        // turn off secure mode for examples. Not recommended for production
+        os.Setenv("EDGEX_SECURITY_SECRET_STORE", "false")
+
+        // 1) First thing to do is to create an instance of the EdgeX SDK and initialize it.
+        edgexSdk := &appsdk.AppFunctionsSDK{ServiceKey: serviceKey}
+        if err := edgexSdk.Initialize(); err != nil {
+                edgexSdk.LoggingClient.Error(fmt.Sprintf("SDK initialization failed: %v\n", err))
+                os.Exit(-1)
+        }
+
+        // 2) shows how to access the application's specific configuration settings.
+        deviceNames, err := edgexSdk.GetAppSettingStrings("DeviceNames")
+        if err != nil {
+                edgexSdk.LoggingClient.Error(err.Error())
+                os.Exit(-1)
+        }
+        edgexSdk.LoggingClient.Info(fmt.Sprintf("Filtering for devices %v", deviceNames))
+
+        // 3) This is our pipeline configuration, the collection of functions to
+        // execute every time an event is triggered.
+        edgexSdk.SetFunctionsPipeline(
+                transforms.NewFilter(deviceNames).FilterByDeviceName,
+                transforms.NewConversion().TransformToXML,
+                printXMLToConsole,
+        )
+
+        // 4) Lastly, we'll go ahead and tell the SDK to "start" and begin listening for events
+        // to trigger the pipeline.
+        err = edgexSdk.MakeItRun()
+        if err != nil {
+                edgexSdk.LoggingClient.Error("MakeItRun returned error: ", err.Error())
+                os.Exit(-1)
+        }
+
+        // Do any required cleanup here
+
+        os.Exit(0)
+}
+```
+
+Since we already compiled this example (and main.go is not changed), we can just launch it:
+```sh
+$ ./app-service
+...
+level=INFO ts=2020-09-18T10:10:22.624535012Z app=sampleFilterXml source=server.go:350 msg="Starting HTTP Web Server on port :48095"
+...
+
+<Event><ID>b53ae300-6bcc-42a4-bf3b-f58165d890f3</ID><Pushed>0</Pushed><Device>Simple-Device01</Device><Created>1600422912988</Created><Modified>0</Modified><Origin>1600422912986695320</Origin><Readings><Id>0305fccf-e5bd-45ba-a0f5-5fe900244751</Id><Pushed>0</Pushed><Created>0</Created><Origin>1600422912</Origin><Modified>0</Modified><Device>Simple-Device01</Device><Name>echoString</Name><Value>HELLO</Value><ValueType>String</ValueType><FloatEncoding></FloatEncoding><BinaryValue></BinaryValue><MediaType></MediaType></Readings></Event>
+```
+
+As our device service keeps sending events with the value "HELLO" every 5 seconds, we can see the XML messages. To test how the message changes, we can send commands to the device service via the core command service:
+```sh
+$ curl http://localhost:48082/api/v1/device/name/Simple-Device01 \
+    -X PUT \
+    -H 'Content-Type: application/json' \
+    -H 'cache-control: no-cache' \
+    -d '{"echoString": "WORLD"}' \
+    -v
+```
+
+<br/>
+
+## Conclusion
+
+So far we prepared Ubuntu server 20.10 on RPI, launched EdgeX services, and created the device and app services. Although there are many unwritten details to keep it simple, now we know about the flow of EdgeX service development - where the important files are and how to build/test. As we could see, running EdgeX on RPI is not difficult at all. Everything is ready there for our exciting IoT projects!
+
+<br/>
+
+---
+
+[To README](README.md)
