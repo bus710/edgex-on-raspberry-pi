@@ -214,8 +214,8 @@ $ make build
 ### 4.1.3 Update config files
 
 As the code got updated, this device service can handle read and write requests from core services. The device service also needs to register itself to the core services and these are the files to be used for the registration:
-- ~/go/src/github.com/edgexfoundry/device-simple/cmd/device-simple/res/**configuration.toml**
-- ~/go/src/github.com/edgexfoundry/device-simple/cmd/device-simple/res/**Simple-Driver.yaml**
+- ~/repo/device-simple/cmd/device-simple/res/**configuration.toml**
+- ~/repo/device-simple/cmd/device-simple/res/**Simple-Driver.yaml**
 
 For configuration.toml:
 ```toml
