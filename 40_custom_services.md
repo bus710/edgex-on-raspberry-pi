@@ -418,7 +418,7 @@ $ curl http://localhost:49980/api/v1/device/name/Simple-Device02/echoString -X G
 ...
 
 # To check the latest 10 async events/readings of the device service via the core data service
-$ curl -s http://localhost:48080/api/v1/event/device/Simple-Device02/1 | json_pp
+$ curl -s http://localhost:48080/api/v1/event/device/Simple-Device02/10 | json_pp
 ```
 
 More APIs can be found from:
