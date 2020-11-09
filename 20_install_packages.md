@@ -69,7 +69,7 @@ Go is a programming language used for EdgeX development and Delve is a debugger 
 # Go v1.15.3 is being installed here because it is the latest stable version as of today but please check it from https://golang.org/dl/
 
 $ cd ~
-$ mkdir /usr/local/bin
+$ mkdir /usr/local/bin # This may exist
 
 # Download the SDK
 $ wget https://dl.google.com/go/go1.15.3.linux-arm64.tar.gz
@@ -84,7 +84,7 @@ $ mkdir ~/go
 $ echo "export PATH=$PATH:/usr/local/go/bin:$HOME/go/bin" >> ~/.bashrc
 $ echo "export GOROOT=/usr/local/go" >> ~/.bashrc
 $ echo "export GOPATH=$HOME/go" >> ~/.bashrc
-$ souce ~/.bashrc
+$ source ~/.bashrc
 
 # To confirm the configurations
 $ go version
