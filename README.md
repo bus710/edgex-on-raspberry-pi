@@ -4,7 +4,7 @@ Raspberry Pi (RPI) is a series of well-known single board computers (SBC). The c
 
 Although there are various IoT frameworks, EdgeX framework is a solid candidate for IoT projects because of its architecture, workflow, and productivity. Its microservices architecture is very flexible and thus new features can be easily adapted. The framework is built using modern web patterns from the beginning so that developers can leverage their knowledge about the technologies. 
 
-A couple of months ago, EdgeX foundation released a new version called Geneva (each version has a name from cities). Also Canonnical announced a new Ubuntu release 20.10 Groovy Gorilla and it embraces RPI as one of the major IoT targets. This news made me think about the combination of RPI, Ubuntu, and EdgeX. Running EdgeX on RPI is not something new because Golang and Docker are the cross platform tools used for EdgeX code base but this time the OS can be Ubuntu-ARM64.
+A couple of months ago, EdgeX foundation released a new version called Geneva (each version has a name from cities). Also Canonnical announced a new Ubuntu release 20.10 Groovy Gorilla and it embraces RPI as one of the major IoT targets. This news made me think about the combination of RPI, Ubuntu, and EdgeX. Running EdgeX on RPI is not something new because Golang and Docker are the cross platform tools used for EdgeX code base but this time the platform is Ubuntu-ARM64 on RPI.
 
 This short tutorial requires some familiarity with the technologies and tools (vi, curl, sed, and jq) but it is progressivly written and easy to follow.
 
