@@ -54,7 +54,7 @@ sudo apt install -y \
     make \
     libzmq3-dev \
     gnupg-agent \
-    build-essential
+    build-essential \
     ca-certificates \
     apt-transport-https \
     software-properties-common
