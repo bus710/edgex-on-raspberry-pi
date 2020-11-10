@@ -66,7 +66,7 @@ $ tree
 $ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\"/c\\t\"github.com\/edgexfoundry\/device-simple\"' ./cmd/device-simple/main.go
 
 # Edit main.go: this command removes "example/" 
-$ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\/example\/driver\"/c\\t\"github.com\/edgexfoundry\/device-simple\/driver\"' ./cmd/device-simple/main.go
+$ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\/example\/driver\"/c\\t\"main\/driver\"' ./cmd/device-simple/main.go
 
 # Edit Makefile: this command replaces "device-sdk-go" to "device-simple"
 $ sed -i '/GOFLAGS=-ldflags \"-X github.com\/edgexfoundry\/device-sdk-go.Version=$(VERSION)\"/c\GOFLAGS=-ldflags \"-X github.com\/edgexfoundry\/device-simple.Version=$(VERSION)\"' ./Makefile
@@ -77,7 +77,7 @@ $ sed -i '/example\/cmd\/device-simple\/device-simple:/c\cmd\/device-simple\/dev
 $ sed -i '/$(GO) build $(GOFLAGS) -o $@ .\/example\/cmd\/device-simple/c\\t$(GO) build $(GOFLAGS) -o $@ .\/cmd\/device-simple' ./Makefile
 
 # Enable Go module 
-$ go mod init
+$ go mod init main
 $ echo "require (
     github.com/edgexfoundry/device-sdk-go v1.2.2
     github.com/edgexfoundry/go-mod-core-contracts v0.1.58
