@@ -356,7 +356,7 @@ level=INFO ts=2020-09-15T10:48:51.814815574Z app=device-simple source=service.go
 ...
 ```
 
-Please open a new terminal and use **curl** to check the state of the device service:
+Please open a new terminal, login to the RPI, and use **curl** to check the state of the device service:
 ```sh
 # Basic info of the device service.
 $ curl http://localhost:48081/api/v1/addressable -X GET -s | jq '.[] | {name,address,port}'
