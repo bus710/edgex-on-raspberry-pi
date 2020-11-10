@@ -76,7 +76,7 @@ $ sed -i '/MICROSERVICES=example\/cmd\/device-simple\/device-simple/c\MICROSERVI
 $ sed -i '/example\/cmd\/device-simple\/device-simple:/c\cmd\/device-simple\/device-simple:' ./Makefile
 $ sed -i '/$(GO) build $(GOFLAGS) -o $@ .\/example\/cmd\/device-simple/c\\t$(GO) build $(GOFLAGS) -o $@ .\/cmd\/device-simple' ./Makefile
 
-# Enable Go module 
+# Enable Go module  
 $ go mod init main
 $ echo "require (
     github.com/edgexfoundry/device-sdk-go v1.2.2
