@@ -71,7 +71,7 @@ $ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\/example\/driver\"/c\\t\"gi
 # Edit Makefile: this command replaces "device-sdk-go" to "device-simple"
 $ sed -i '/GOFLAGS=-ldflags \"-X github.com\/edgexfoundry\/device-sdk-go.Version=$(VERSION)\"/c\GOFLAGS=-ldflags \"-X github.com\/edgexfoundry\/device-simple.Version=$(VERSION)\"' ./Makefile
 
-# Edit Makefile: these commands removes "example/"
+# Edit Makefile: these commands remove "example/"
 $ sed -i '/MICROSERVICES=example\/cmd\/device-simple\/device-simple/c\MICROSERVICES=cmd\/device-simple\/device-simple' ./Makefile
 $ sed -i '/example\/cmd\/device-simple\/device-simple:/c\cmd\/device-simple\/device-simple:' ./Makefile
 $ sed -i '/$(GO) build $(GOFLAGS) -o $@ .\/example\/cmd\/device-simple/c\\t$(GO) build $(GOFLAGS) -o $@ .\/cmd\/device-simple' ./Makefile
