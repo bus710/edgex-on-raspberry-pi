@@ -71,7 +71,7 @@ $ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\/example\/driver\"/c\\t\"ma
 # Edit Makefile: this command replaces "device-sdk-go" to "device-simple"
 $ sed -i '/GOFLAGS=-ldflags \"-X github.com\/edgexfoundry\/device-sdk-go.Version=$(VERSION)\"/c\GOFLAGS=-ldflags \"-X github.com\/edgexfoundry\/device-simple.Version=$(VERSION)\"' ./Makefile
 
-# Edit Makefile: these commands removes "example/"
+# Edit Makefile: these commands remove "example/"
 $ sed -i '/MICROSERVICES=example\/cmd\/device-simple\/device-simple/c\MICROSERVICES=cmd\/device-simple\/device-simple' ./Makefile
 $ sed -i '/example\/cmd\/device-simple\/device-simple:/c\cmd\/device-simple\/device-simple:' ./Makefile
 $ sed -i '/$(GO) build $(GOFLAGS) -o $@ .\/example\/cmd\/device-simple/c\\t$(GO) build $(GOFLAGS) -o $@ .\/cmd\/device-simple' ./Makefile
@@ -356,7 +356,7 @@ level=INFO ts=2020-09-15T10:48:51.814815574Z app=device-simple source=service.go
 ...
 ```
 
-Please open a new terminal and use **curl** to check the state of the device service:
+Please open a new terminal, login to the RPI, and use **curl** to check the state of the device service:
 ```sh
 # Basic info of the device service.
 $ curl http://localhost:48081/api/v1/addressable -X GET -s | jq '.[] | {name,address,port}'
