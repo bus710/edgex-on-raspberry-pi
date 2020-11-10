@@ -62,9 +62,6 @@ $ tree
 
 4 directories, 12 files
 
-# Edit main.go: this command replaces "device-sdk-go" to "device-simple"
-$ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\"/c\\t\"github.com\/edgexfoundry\/device-simple\"' ./cmd/device-simple/main.go
-
 # Edit main.go: this command removes "example/" 
 $ sed -i '/\"github.com\/edgexfoundry\/device-sdk-go\/example\/driver\"/c\\t\"main\/driver\"' ./cmd/device-simple/main.go
 
