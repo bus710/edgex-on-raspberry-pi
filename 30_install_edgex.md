@@ -39,7 +39,7 @@ docker-compose-portainer.yml
 # - Security is out of scope in this tutorial. 
 # With these criteria, we will use "docker-compose-geneva-redis-no-secty-arm64.yml". 
 
-# Before launch, let's remove the device-virtual and device-rest blocks in the compose file.
+# (Optional) virtual devices can be removed in the yaml file
 $ vi docker-compose-geneva-redis-no-secty-arm64.yml
 
 # This command launches the stack but might take couple minutes depends on the network.
