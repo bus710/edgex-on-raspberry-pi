@@ -188,6 +188,10 @@ $ ssh ubuntu@192.168.0.2 \
 
 # The shell prompt will be changed to
 ubuntu@ubuntu:~$
+
+# (Optional) Remove the delay in the boot process for internet access
+$ sudo systemctl disable systemd-networkd-wait-online.service
+$ sudo systemctl mask systemd-networkd-wait-online.service
 ```
 
 <br/>
