@@ -109,7 +109,7 @@ $ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml logs -f {data
 
 <br/>
 
-## 3.3 Test EdgeX services with Portainer 
+## 3.3 (Optional) Monitor EdgeX services with Portainer 
 
 A local web service "Portainer" can be launched to monitor Docker services but it is not a command line tool so that let's use a web browser from the host machine. Before launch it, we need to edit a line in the compose file:
 ```sh
