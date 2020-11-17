@@ -89,6 +89,9 @@ $ source ~/.bashrc
 # To confirm the configurations
 $ go version
 go version go1.15.3 linux/arm64
+
+# To install Delve
+$ go get -u github.com/go-delve/delve/cmd/dlv
 ```
 
 <br/>
