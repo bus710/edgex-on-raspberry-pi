@@ -92,6 +92,12 @@ go version go1.15.3 linux/arm64
 
 # To install Delve
 $ go get -u github.com/go-delve/delve/cmd/dlv
+
+# To confirm Delve's version
+$ dlv version
+Delve Debugger
+Version: 1.5.0
+Build: $Id: ca5318932770ca063fc9885b4764c30bfaf8a199 $
 ```
 
 <br/>
