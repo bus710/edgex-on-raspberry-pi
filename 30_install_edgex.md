@@ -39,9 +39,6 @@ docker-compose-portainer.yml
 # - Security is out of scope in this tutorial. 
 # With these criteria, we will use "docker-compose-geneva-redis-no-secty-arm64.yml". 
 
-# (Optional) virtual devices can be removed in the yaml file
-$ vi docker-compose-geneva-redis-no-secty-arm64.yml
-
 # This command launches the stack but might take couple minutes depends on the network.
 $ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml up -d
 ...
@@ -70,10 +67,6 @@ edgexfoundry/docker-support-notifications-go-arm64:1.2.1   Up 22 seconds
 arm64v8/redis:5.0.8-alpine                                 Up 26 seconds
 edgexfoundry/docker-edgex-consul-arm64:1.2.0               Up 26 seconds
 portainer/portainer
-
-# If there is a device-virtual still running, stop the services with volume reset and start again
-$ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml down -v
-$ docker-compose -f docker-compose-geneva-redis-no-secty-arm64.yml up -d
 ```
 
 <br/>
