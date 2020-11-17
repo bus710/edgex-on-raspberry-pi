@@ -1,6 +1,6 @@
 [To README](README.md)
 
-# 3. How to install EdgeX with a virtual device service
+# 3. How to install EdgeX 
 
 The tools to run EdgeX services are ready. The EdgeX stack consists of many docker containers but users don't need to launch one by one since the EdgeX team offers Docker-compose files per each release iteration. 
 
