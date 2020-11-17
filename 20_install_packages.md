@@ -134,4 +134,4 @@ So, now the required packages for EdgeX development are ready!
 
 ---
 
-Next: [How to install EdgeX with a virtual device service](30_install_edgex.md)
+Next: [How to install EdgeX](30_install_edgex.md)
