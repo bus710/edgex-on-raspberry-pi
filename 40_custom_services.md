@@ -482,6 +482,11 @@ $ make build
 CGO_ENABLED=1 GO111MODULE=on go build -o app-service
 ```
 
+If test build fails:
+```sh
+$ go get github.com/rjeczalik/pkgconfig/cmd/pkg-config
+```
+
 <br/>
 
 ### 4.2.2 Edit the configuration file
@@ -552,8 +557,14 @@ level=INFO ts=2020-09-18T10:10:22.624535012Z app=sampleFilterXml source=server.g
 <Event><ID>b53ae300-6bcc-42a4-bf3b-f58165d890f3</ID><Pushed>0</Pushed><Device>Simple-Device02</Device><Created>1600422912988</Created><Modified>0</Modified><Origin>1600422912986695320</Origin><Readings><Id>0305fccf-e5bd-45ba-a0f5-5fe900244751</Id><Pushed>0</Pushed><Created>0</Created><Origin>1600422912</Origin><Modified>0</Modified><Device>Simple-Device02</Device><Name>echoString</Name><Value>HELLO</Value><ValueType>String</ValueType><FloatEncoding></FloatEncoding><BinaryValue></BinaryValue><MediaType></MediaType></Readings></Event>
 ```
 
-As our device service keeps sending events with the value "HELLO" once every 5 seconds, we can see the XML messages. To test how the message changes, we can send commands to the device service via the core command service:
+
+
+As our device service keeps sending events with the value "HELLO" once every 5 seconds, we can see the XML messages. To test how the message changes, we can send commands to the device service via the core command service. Let's open a new terminal and:
 ```sh
+# Let's store the IDs as same as earlier
+$ DEVICE_ID=$(curl http://localhost:48082/api/v1/device -s | jq -r '.[] | select(.name == "Simple-Device02").id')
+$ COMMAND_ID=$(curl http://localhost:48082/api/v1/device -s | jq -r '.[] | select(.name == "Simple-Device02").commands | .[] | .id')
+
 # Query with the gathered IDs (the DEVICE_ID and COMMAND_ID variables are defined earlier):
 $ curl http://localhost:48082/api/v1/device/$DEVICE_ID/command/$COMMAND_ID \
     -s \
