@@ -482,7 +482,7 @@ $ make build
 CGO_ENABLED=1 GO111MODULE=on go build -o app-service
 ```
 
-If test build fails:
+If test build fails, try this and build again:
 ```sh
 $ go get github.com/rjeczalik/pkgconfig/cmd/pkg-config
 ```
@@ -559,7 +559,9 @@ level=INFO ts=2020-09-18T10:10:22.624535012Z app=sampleFilterXml source=server.g
 
 
 
-As our device service keeps sending events with the value "HELLO" once every 5 seconds, we can see the XML messages. To test how the message changes, we can send commands to the device service via the core command service. Let's open a new terminal and:
+As our device service keeps sending events with the value "HELLO" once every 5 seconds, we can see the XML messages. To test how the message changes, we can send commands to the device service via the core command service. 
+
+Let's open a new terminal and:
 ```sh
 # Let's store the IDs as same as earlier
 $ DEVICE_ID=$(curl http://localhost:48082/api/v1/device -s | jq -r '.[] | select(.name == "Simple-Device02").id')
